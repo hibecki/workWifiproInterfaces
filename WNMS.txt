@@ -1,0 +1,93 @@
+WNMS API Web Services
+
+
+Get All Nodes
+
+url: http://10.1.166.32/api/v1/nodes
+
+method: GET
+
+
+Find Node By Node Id
+
+url: http://10.1.166.32/api/v1/nodes/{node_id}
+
+method: GET
+
+
+Find Node By IP Address
+
+url: http://10.1.166.32/api/v1/nodes/ip/{node_ip}
+
+method: GET
+
+
+Add New Node
+
+url: http://10.1.166.32/api/v1/nodes
+
+method: POST
+
+post's parameters
+
+- name
+
+- ip
+
+- project
+
+- province
+
+- site_name
+
+- site_group
+
+- side_address
+
+- site_latitude
+
+- site_longitude
+
+- circuit_no
+
+
+Update Node
+
+url: http://10.1.166.32/api/v1/nodes/{node_id}
+
+method: POST
+
+post's parameters
+
+- _method = PUT
+
+- name
+
+- ip
+
+- project
+
+- province
+
+- site_name
+
+- site_group
+
+- side_address
+
+- site_latitude
+
+- site_longitude
+
+- circuit_no
+
+
+Delete Node
+
+url: http://10.1.166.32/api/v1/nodes/{node_id}
+
+method: POST
+
+post's parameters
+
+- _method = DELETE

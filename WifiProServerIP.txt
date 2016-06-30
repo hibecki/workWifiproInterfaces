@@ -1,0 +1,12 @@
+# Production Database
+Database 	: Mysql
+IP Address 	: 10.1.164.144
+Port 	: 3306
+user 	: wifipro
+password 	: wifipro1234
+
+# Tomcat
+URL
+user          	: http://10.1.164.142:8080/manager
+: admin
+password 	: adminadmin
