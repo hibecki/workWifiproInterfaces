@@ -1,0 +1,9 @@
+GET
+
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://hostname/resource
+
+
+POST
+
+curl --data "param1=value1&param2=value2" http://hostname/resource
+
