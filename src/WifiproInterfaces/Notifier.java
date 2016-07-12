@@ -33,7 +33,7 @@ public class Notifier {
 		urlString = urlstring;
 	}
 	
-	public String post(String name, String data) { //remove String name after can make sure that NMS doesnt need it
+	public String post(String name, String data, String method, String id) { //remove String name after can make sure that NMS doesnt need it
         errorCode = "Notifier-01";
         errorMessage = "Found unidentified error";
         
@@ -63,9 +63,11 @@ public class Notifier {
             
             //postdata = name + "=" + URLEncoder.encode(data,Utils.CharacterEncoding);
             postdata = data;
+            if (!method.equals("POST")) {urlString += "/" + id;}
             URL url = new URL(urlString);
             urlcon = (HttpURLConnection)url.openConnection();
-            urlcon.setRequestMethod("POST");
+            //urlcon.setRequestMethod("POST");
+            urlcon.setRequestMethod(method);
             urlcon.setRequestProperty("Content-Type", "application/json;charset=" + Utils.CharacterEncoding);
             urlcon.setUseCaches(false);
             urlcon.setDoInput(true);

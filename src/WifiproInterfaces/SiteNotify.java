@@ -27,6 +27,7 @@ public class SiteNotify extends HttpServlet {
         String errorCode = "SiteNotify-01";
         String errorMessage = "Found unidentified error";
         String logString = "No logstring";
+        String method = "POST";
         
 		int id;String action;String data;String status;
 		id = Integer.parseInt(request.getParameter("id"));
@@ -38,12 +39,15 @@ public class SiteNotify extends HttpServlet {
 		if (action.equals("INSERT")) {
 			urlstring = Utils.NMSUrlSiteInsert;
 			logString = "INSERT";
+			method = "POST";
 		} else if (action.equals("UPDATE")) {
 			urlstring = Utils.NMSUrlSiteUpdate;
 			logString = "UPDATE";
+			method = "PUT";
 		} else if (action.equals("DELETE")) {
 			urlstring = Utils.NMSUrlSiteDelete;
 			logString = "DELETE";
+			method = "DELETE";
 		}
 		logString += " " + urlstring;
 		
@@ -52,7 +56,7 @@ public class SiteNotify extends HttpServlet {
 		
 		Notifier n = new Notifier();
 		n.setUrl(urlstring);
-		String result = n.post("data",s.getJson()); //remove "data" later after can make sure NMS doesnt need it
+		String result = n.post("data",s.getJson(),method, data); //remove "data" later after can make sure NMS doesnt need it
 //System.out.println(result);
 //System.out.println(status + " " + Integer.toString(id));
 		logString += " submitted data:" + s.getJson();
