@@ -21,11 +21,11 @@ public class Notifier {
 	private Logger LOG;
 
 	public Notifier() {
-		this.LOG = Logger.getLogger(Project.class.getName());
+		this.LOG = Logger.getLogger(Notifier.class.getName());
 	}
 	
 	public Notifier(String urlstring) {
-		this.LOG = Logger.getLogger(Project.class.getName());
+		this.LOG = Logger.getLogger(Notifier.class.getName());
 		urlString = urlstring;
 	}
 	
@@ -64,6 +64,7 @@ public class Notifier {
             //postdata = name + "=" + URLEncoder.encode(data,Utils.CharacterEncoding);
             postdata = data;
             if (!method.equals("POST")) {urlString += "/" + id;}
+LOG.log(Level.INFO,"{0}-method: {1},url: {2}",new Object[]{"Notifier",method,urlString});
             URL url = new URL(urlString);
             urlcon = (HttpURLConnection)url.openConnection();
             //urlcon.setRequestMethod("POST");

@@ -1,0 +1,3 @@
+[root@localhost ~]# crontab -l
+5 0 * * * sh /root/Scripts/logs_backup.sh >> /root/Scripts/logs_backup.log
+*/1 * * * * curl http://localhost:8080/WifiproInterfaces/EventsQuery >/dev/null 2>&1

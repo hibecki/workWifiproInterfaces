@@ -2,8 +2,8 @@ package WifiproInterfaces;
 
 public class Utils {
 	public static String JdbcDriverName = "org.mariadb.jdbc.Driver";
-	public static String JdbcConnectionstring = "jdbc:mariadb://localhost/totwifing?user=wifipro&password=wifipro1234";
-	//public static String JdbcConnectionstring = "jdbc:mariadb://10.1.164.144/totwifing?user=wifipro&password=wifipro1234";
+	//public static String JdbcConnectionstring = "jdbc:mariadb://localhost/totwifing?user=wifipro&password=wifipro1234";
+	public static String JdbcConnectionstring = "jdbc:mariadb://10.1.164.144/totwifing?user=wifipro&password=wifipro1234";
 	public static String CharacterEncoding = "UTF-8";
 	
 /*	public static String NMSUrlProjectInsert = "http://localhost:8080/testNMSInterfaces/testProjectInsert.php";
