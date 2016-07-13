@@ -71,13 +71,23 @@ LOG.log(Level.INFO,"{0}-method: {1},url: {2}",new Object[]{"Notifier",method,url
             urlcon.setRequestMethod(method);
             urlcon.setRequestProperty("Content-Type", "application/json;charset=" + Utils.CharacterEncoding);
             urlcon.setUseCaches(false);
-            urlcon.setDoInput(true);
-            urlcon.setDoOutput(true);
             
-            OutputStream os = urlcon.getOutputStream();
-            os.write(postdata.getBytes());
-//System.out.println(postdata);
-            os.flush();
+            if (!method.equals("DELETE")) {
+                urlcon.setDoInput(true);
+                urlcon.setDoOutput(true);
+                
+                OutputStream os = urlcon.getOutputStream();
+                os.write(postdata.getBytes());
+    //System.out.println(postdata);
+                os.flush();
+                
+                input = urlcon.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(input,Utils.CharacterEncoding));
+                result = reader.readLine();
+            } else {
+            	result = Integer.toString(urlcon.getResponseCode());
+            }
+
             
 /*
 
@@ -120,9 +130,7 @@ os.write(outputBytes);
 
 os.close();            
  */
-            input = urlcon.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(input,Utils.CharacterEncoding));
-            result = reader.readLine();
+
             errorCode = "Notifier00";
             errorMessage = "No error";
         } catch (MalformedURLException e) { 
@@ -136,7 +144,7 @@ os.close();
             if(output!=null){try{output.close();}catch(Exception e){errorCode="Notifier97";errorMessage=e.toString();}output=null;}
             if(input!=null){try{input.close();}catch(Exception e){errorCode="Notifier98";errorMessage=e.toString();}input=null;}
             if(urlcon!=null){try{urlcon.disconnect();}catch(Exception e){errorCode="Notifier99";errorMessage=e.toString();}urlcon=null;}
-LOG.log(Level.INFO,"{0}-errorCode: {1},errorMessage: {2}",new Object[]{"Notifier",errorCode,errorMessage});
+LOG.log(Level.INFO,"{0}-errorCode: {1},errorMessage: {2}, result:|{3}|",new Object[]{"Notifier",errorCode,errorMessage,result});
         }
         return result;
 	}
