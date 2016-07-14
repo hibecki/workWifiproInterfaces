@@ -1,0 +1,26 @@
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','INSERT',3,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','UPDATE',3,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','DELETE',3,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','INSERT',425,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','UPDATE',425,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','DELETE',425,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','INSERT',438,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','UPDATE',438,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','DELETE',438,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('EQUIPMENT','INSERT',1190,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('EQUIPMENT','UPDATE',1190,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('EQUIPMENT','DELETE',1190,'Queued');
+
+INSERT INTO nmsnotify (object,action,data,status) VALUES ('EQUIPMENT','DELETE',8888,'Queued');
+

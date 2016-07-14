@@ -1,0 +1,246 @@
+alter table service_area drop index UK_rwqbc3gsnpxt56pmfpnvhn3qe;
+
+DROP TRIGGER service_area_bi;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_bi
+BEFORE INSERT ON service_area FOR EACH ROW
+BEGIN
+    DECLARE iAreaCodeMAX INTEGER;
+    SELECT CAST(MAX(area_code) AS INT) FROM service_area where organization_id = NEW.organization_id INTO iAreaCodeMAX;
+    IF (iAreaCodeMAX IS NULL) THEN SET iAreaCodeMAX := 0; END IF;
+    SET NEW.area_code = LPAD(iAreaCodeMAX + 1,5,'0');
+END; //
+
+DELIMITER ;
+
+
+
+DROP TRIGGER site_equipment_bi;
+
+DELIMITER //
+
+CREATE TRIGGER site_equipment_bi
+BEFORE INSERT ON site_equipment FOR EACH ROW
+BEGIN
+    DECLARE vAreaCode VARCHAR(10);
+    DECLARE vItemType VARCHAR(10);
+    DECLARE iEquipmentIdMAX INTEGER;
+    
+    SELECT CONCAT(o.code,sa.area_code) FROM organization o, service_area sa, site s, site_circuit sc 
+    WHERE o.id = sa.organization_id AND sa.id = s.service_area_id AND s.id = sc.site_id AND sc.id = NEW.site_circuit_id INTO vAreaCode;
+    
+    SELECT code FROM item_type it, item_model im, item i, service_area_equipment sae 
+    WHERE it.id = im.item_type_id AND im.id = i.model_id AND i.id = sae.item_id AND sae.id = NEW.service_area_equipment_id INTO vItemType;
+    
+    SELECT CAST(RIGHT(MAX(equipment_id),4) AS INT) FROM site_equipment WHERE equipment_id like CONCAT(vAreaCode,'-',vItemtype,'%') INTO iEquipmentIdMAX;
+
+    IF (iEquipmentIdMAX IS NULL) THEN SET iEquipmentIdMAX := 0; END IF;
+    
+    SET NEW.equipment_id = CONCAT(vAreaCode,'-',vItemtype,LPAD(iEquipmentIdMAX + 1,4,'0'));
+END; //
+
+DELIMITER ;
+
+
+
+
+
+DROP TABLE nmsnotify;
+
+CREATE TABLE nmsnotify (
+  id bigint(20) NOT NULL AUTO_INCREMENT,
+  object varchar(30) NOT NULL,
+  action varchar(10) NOT NULL,
+  data varchar(2000) NOT NULL,
+  status varchar(10) NOT NULL,
+  created timestamp DEFAULT CURRENT_TIMESTAMP,
+  updated datetime ON UPDATE CURRENT_TIMESTAMP,
+  result varchar(2000),
+  PRIMARY KEY (id)
+);
+
+
+
+DROP TRIGGER project_ai;
+
+DELIMITER //
+
+CREATE TRIGGER project_ai
+AFTER INSERT ON project FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','INSERT',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+DROP TRIGGER project_au;
+
+DELIMITER //
+
+CREATE TRIGGER project_au
+AFTER UPDATE ON project FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','UPDATE',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+DROP TRIGGER project_ad;
+
+DELIMITER //
+
+CREATE TRIGGER project_ad
+AFTER DELETE ON project FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','DELETE',CAST(OLD.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+DROP TRIGGER service_area_ai;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_ai
+AFTER INSERT ON service_area FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','INSERT',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+DROP TRIGGER service_area_au;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_au
+AFTER UPDATE ON service_area FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','UPDATE',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+DROP TRIGGER service_area_au;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_au
+AFTER UPDATE ON service_area FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','UPDATE',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+DROP TRIGGER service_area_ad;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_ad
+AFTER DELETE ON service_area FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','DELETE',CAST(OLD.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+DROP TRIGGER site_ai;
+
+DELIMITER //
+
+CREATE TRIGGER site_ai
+AFTER INSERT ON site FOR EACH ROW
+BEGIN   
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','INSERT',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+DROP TRIGGER site_au;
+
+DELIMITER //
+
+CREATE TRIGGER site_au
+AFTER UPDATE ON site FOR EACH ROW
+BEGIN
+    IF (NEW.delete_flag = 1) THEN
+        INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','DELETE',CAST(NEW.id AS CHAR),'Queued');
+    ELSE
+        INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','UPDATE',CAST(NEW.id AS CHAR),'Queued');
+    END IF;
+
+END; //
+
+DELIMITER ;
+
+
+DROP TRIGGER site_equipment_ai;
+
+DELIMITER //
+
+CREATE TRIGGER site_equipment_ai
+AFTER INSERT ON site_equipment FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('EQUIPMENT','INSERT',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+DROP TRIGGER site_equipment_au;
+
+DELIMITER //
+
+CREATE TRIGGER site_equipment_au
+AFTER UPDATE ON site_equipment FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('EQUIPMENT','UPDATE',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

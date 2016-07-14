@@ -1,0 +1,322 @@
+===========================================================================
+NMSNotify
+===========================================================================
+
+DROP TABLE nmsnotify;
+
+CREATE TABLE nmsnotify (
+  id bigint(20) NOT NULL AUTO_INCREMENT,
+  object varchar(30) NOT NULL,
+  action varchar(10) NOT NULL,
+  data varchar(2000) NOT NULL,
+  status varchar(10) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+--status = Queued, Notified, Succeed
+
+===========================================================================
+Project
+===========================================================================
+
+DROP TRIGGER project_ai;
+
+DELIMITER //
+
+CREATE TRIGGER project_ai
+AFTER INSERT ON project FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','INSERT',
+    CONCAT_WS('|',CAST(NEW.id AS CHAR),NEW.name),
+    'Queued');
+END; //
+
+DELIMITER ;
+
+
+
+INSERT INTO `project` (`version`, `name`) VALUES (0, 'TEST3');
+
+select * from project;
+
+select * from nmsnotify;
+
+
+DROP TRIGGER project_au;
+
+DELIMITER //
+
+CREATE TRIGGER project_au
+AFTER UPDATE ON project FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','UPDATE',
+    CONCAT_WS('|',CAST(NEW.id AS CHAR),NEW.name),
+    'Queued');
+END; //
+
+DELIMITER ;
+
+
+update project set name = 'test2' where id = 6;
+
+
+
+DROP TRIGGER project_ad;
+
+DELIMITER //
+
+CREATE TRIGGER project_ad
+AFTER DELETE ON project FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','DELETE',
+    CONCAT_WS('|',CAST(OLD.id AS CHAR),OLD.name),
+    'Queued');
+END; //
+
+DELIMITER ;
+
+delete from project where id = 6;
+
+
+===========================================================================
+Site (Table name: service_area)
+===========================================================================
+
+DROP TRIGGER service_area_ai;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_ai
+AFTER INSERT ON service_area FOR EACH ROW
+BEGIN
+    DECLARE areatype VARCHAR(255);
+    DECLARE province VARCHAR(255);
+    
+    DECLARE postname VARCHAR(50);
+    DECLARE zipcode VARCHAR(255);
+    
+    SELECT name FROM area_type WHERE id = NEW.area_type_id INTO areatype;
+    SELECT name FROM organization WHERE id = NEW.organization_id INTO province;
+    
+    SELECT name, zipcode FROM post_address WHERE id = NEW.post_address_id INTO postname, zipcode;
+    
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','INSERT',
+    CONCAT_WS('|',CAST(NEW.id AS CHAR),NEW.name,NEW.address,CAST(NEW.project_id AS CHAR),areatype,province,zipcode,NEW.status),
+    'Queued');
+END; //
+
+DELIMITER ;
+
+
+INSERT INTO service_area (`version`, `address`, `area_code`, `area_type_id`, `charge`, `comment`, `contact_name`, `contact_tel_number`, `create_date`, `create_user_id`, `customer_amount`, `latitude`, `longitude`, `name`, `organization_id`, `other_providers`, `post_address_id`, `project_id`, `remark`, `rival`, `signal_more`, `signal_old`, `status`, `update_date`, `update_user_id`, `worker_id`) VALUES
+(9, '199-201 ถ.อุตรกิจ', '00001', 19, NULL, NULL, NULL, NULL, '2014-10-24 00:00:00', 7, NULL, NULL, NULL, 
+'ธ.กสิกรไทย สาขากระบี่ [9998]', 460, NULL, 44, 1, NULL, NULL, NULL, NULL, 'approved', '2014-10-24 08:10:55', NULL, NULL);
+
+
+select * from service_area where version = 9;
+
+select * from nmsnotify;
+
+
+DROP TRIGGER service_area_au;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_au
+AFTER UPDATE ON service_area FOR EACH ROW
+BEGIN
+    DECLARE areatype VARCHAR(255);
+    DECLARE province VARCHAR(255);
+    
+    DECLARE postname VARCHAR(50);
+    DECLARE zipcode VARCHAR(255);
+    
+    SELECT name FROM area_type WHERE id = NEW.area_type_id INTO areatype;
+    SELECT name FROM organization WHERE id = NEW.organization_id INTO province;
+    
+    SELECT name, zipcode FROM post_address WHERE id = NEW.post_address_id INTO postname, zipcode;
+    
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','UPDATE',
+    CONCAT_WS('|',CAST(NEW.id AS CHAR),NEW.name,NEW.address,CAST(NEW.project_id AS CHAR),areatype,province,zipcode,NEW.status),
+    'Queued');
+END; //
+
+DELIMITER ;
+
+
+update service_area set status = 'xxxxxxx' where id = 411;
+
+
+
+DROP TRIGGER service_area_ad;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_ad
+AFTER DELETE ON service_area FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','DELETE',
+    CONCAT_WS('|',CAST(OLD.id AS CHAR),OLD.name),
+    'Queued');
+END; //
+
+DELIMITER ;
+
+delete from service_area where id = 411;
+
+
+===========================================================================
+Location (Table name: site)
+===========================================================================
+
+DROP TRIGGER site_ai;
+
+DELIMITER //
+
+CREATE TRIGGER site_ai
+AFTER INSERT ON site FOR EACH ROW
+BEGIN   
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','INSERT',
+    CONCAT_WS('|',CAST(NEW.id AS CHAR),NEW.location_name,CAST(NEW.longitude AS CHAR),CAST(NEW.latitude AS CHAR),CAST(NEW.service_area_id AS CHAR),NEW.status,CAST(NEW.delete_flag AS CHAR)),
+    'Queued');
+END; //
+
+DELIMITER ;
+
+
+INSERT INTO `site` (`version`, `finish_date`, `finish_user_id`, `install_worker_id`, `latitude`, `location_name`, `longitude`, `number_of_access_point`, `number_of_modem_router`, `number_of_switch`, `remark`, `service_area_id`, `start_date`, `start_user_id`, `status`, `update_date`, `update_user_id`, `delete_flag`) VALUES
+(9, '2014-10-24 08:10:55', NULL, NULL, '100.00', 'ธ.กสิกรไทย สาขากระบี่ [9987]', '10.00', 0, 0, 0, 'xxx', 1, '2014-10-24 00:00:00', NULL, 'cancel', '2015-06-05 10:13:45', 13, b'0');
+
+
+select * from site where version = 9;
+
+select * from nmsnotify;
+
+
+DROP TRIGGER site_au;
+
+DELIMITER //
+
+CREATE TRIGGER site_au
+AFTER UPDATE ON site FOR EACH ROW
+BEGIN
+    IF (NEW.delete_flag = 1) THEN
+        INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','DELETE',
+        CONCAT_WS('|',CAST(NEW.id AS CHAR),NEW.location_name,CAST(NEW.longitude AS CHAR),CAST(NEW.latitude AS CHAR),CAST(NEW.service_area_id AS CHAR),NEW.status,CAST(NEW.delete_flag AS CHAR)),
+        'Queued');
+    ELSE
+        INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','UPDATE',
+        CONCAT_WS('|',CAST(NEW.id AS CHAR),NEW.location_name,CAST(NEW.longitude AS CHAR),CAST(NEW.latitude AS CHAR),CAST(NEW.service_area_id AS CHAR),NEW.status,CAST(NEW.delete_flag AS CHAR)),
+        'Queued');
+    END IF;
+
+END; //
+
+DELIMITER ;
+
+
+update site set version = 9 where id = 405;
+
+update site set delete_flag = 1 where id = 405;
+
+
+
+===========================================================================
+Equipment (Table name: site_equipment)
+===========================================================================
+
+DROP TRIGGER site_equipment_ai;
+
+DELIMITER //
+
+CREATE TRIGGER site_equipment_ai
+AFTER INSERT ON site_equipment FOR EACH ROW
+BEGIN
+    DECLARE siteid INTEGER;
+    DECLARE circuitid INTEGER;
+    DECLARE circuitnumber VARCHAR(255);
+    
+    SELECT site_id,circuit_id FROM site_circuit WHERE id = NEW.site_circuit_id INTO siteid,circuitid;
+    
+    SELECT circuit_number FROM circuit WHERE id = circuitid INTO circuitnumber;
+
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('EQUIPMENT','INSERT',
+    CONCAT_WS('|',NEW.equipment_id,NEW.host_name,NEW.ip,NEW.location,CAST(siteid AS CHAR),circuitnumber,CAST(NEW.longitude AS CHAR),CAST(NEW.latitude AS CHAR),NEW.status),
+    'Queued');
+END; //
+
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+INSERT INTO service_area (`version`, `address`, `area_code`, `area_type_id`, `charge`, `comment`, `contact_name`, `contact_tel_number`, `create_date`, `create_user_id`, `customer_amount`, `latitude`, `longitude`, `name`, `organization_id`, `other_providers`, `post_address_id`, `project_id`, `remark`, `rival`, `signal_more`, `signal_old`, `status`, `update_date`, `update_user_id`, `worker_id`) VALUES
+(9, '199-201 ถ.อุตรกิจ', '00001', 19, NULL, NULL, NULL, NULL, '2014-10-24 00:00:00', 7, NULL, NULL, NULL, 
+'ธ.กสิกรไทย สาขากระบี่ [9998]', 460, NULL, 44, 1, NULL, NULL, NULL, NULL, 'approved', '2014-10-24 08:10:55', NULL, NULL);
+
+
+select * from service_area where version = 9;
+
+select * from nmsnotify;
+
+
+DROP TRIGGER service_area_au;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_au
+AFTER UPDATE ON service_area FOR EACH ROW
+BEGIN
+    DECLARE areatype VARCHAR(255);
+    DECLARE province VARCHAR(255);
+    
+    DECLARE postname VARCHAR(50);
+    DECLARE zipcode VARCHAR(255);
+    
+    SELECT name FROM area_type WHERE id = NEW.area_type_id INTO areatype;
+    SELECT name FROM organization WHERE id = NEW.organization_id INTO province;
+    
+    SELECT name, zipcode FROM post_address WHERE id = NEW.post_address_id INTO postname, zipcode;
+    
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','UPDATE',
+    CONCAT_WS('|',CAST(NEW.id AS CHAR),NEW.name,NEW.address,CAST(NEW.project_id AS CHAR),areatype,province,zipcode,NEW.status),
+    'Queued');
+END; //
+
+DELIMITER ;
+
+
+update service_area set status = 'xxxxxxx' where id = 411;
+
+
+
+DROP TRIGGER service_area_ad;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_ad
+AFTER DELETE ON service_area FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','DELETE',
+    CONCAT_WS('|',CAST(OLD.id AS CHAR),OLD.name),
+    'Queued');
+END; //
+
+DELIMITER ;
+
+delete from service_area where id = 411;
+
+
+
+
+
+
+
+
+

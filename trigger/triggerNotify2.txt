@@ -1,0 +1,264 @@
+===========================================================================
+NMSNotify
+===========================================================================
+
+DROP TABLE nmsnotify;
+
+CREATE TABLE nmsnotify (
+  id bigint(20) NOT NULL AUTO_INCREMENT,
+  object varchar(30) NOT NULL,
+  action varchar(10) NOT NULL,
+  data varchar(2000) NOT NULL,
+  status varchar(10) NOT NULL,
+  created timestamp DEFAULT CURRENT_TIMESTAMP,
+  updated datetime ON UPDATE CURRENT_TIMESTAMP,
+  result varchar(2000),
+  PRIMARY KEY (id)
+);
+
+--status = Queued, Picked, Succeed, Notified1, Notified2, Notified3, .., Failed  
+
+update nmsnotify set status = 'Notified' where id = 1;
+===========================================================================
+Project
+===========================================================================
+
+DROP TRIGGER project_ai;
+
+DELIMITER //
+
+CREATE TRIGGER project_ai
+AFTER INSERT ON project FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','INSERT',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+
+INSERT INTO `project` (`version`, `name`) VALUES (0, 'TEST3');
+
+select * from project;
+
+select * from nmsnotify;
+
+
+DROP TRIGGER project_au;
+
+DELIMITER //
+
+CREATE TRIGGER project_au
+AFTER UPDATE ON project FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','UPDATE',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+update project set name = 'test2' where id = 6;
+
+
+
+DROP TRIGGER project_ad;
+
+DELIMITER //
+
+CREATE TRIGGER project_ad
+AFTER DELETE ON project FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('PROJECT','DELETE',CAST(OLD.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+delete from project where id = 6;
+
+
+===========================================================================
+Site (Table name: service_area)
+===========================================================================
+
+DROP TRIGGER service_area_ai;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_ai
+AFTER INSERT ON service_area FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','INSERT',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+INSERT INTO service_area (`version`, `address`, `area_code`, `area_type_id`, `charge`, `comment`, `contact_name`, `contact_tel_number`, `create_date`, `create_user_id`, `customer_amount`, `latitude`, `longitude`, `name`, `organization_id`, `other_providers`, `post_address_id`, `project_id`, `remark`, `rival`, `signal_more`, `signal_old`, `status`, `update_date`, `update_user_id`, `worker_id`) VALUES
+(9, '199-201 ถ.อุตรกิจ', '00001', 19, NULL, NULL, NULL, NULL, '2014-10-24 00:00:00', 7, NULL, NULL, NULL, 
+'ธ.กสิกรไทย สาขากระบี่ [9998]', 460, NULL, 44, 1, NULL, NULL, NULL, NULL, 'approved', '2014-10-24 08:10:55', NULL, NULL);
+
+
+select * from service_area where version = 9;
+
+select * from nmsnotify;
+
+
+DROP TRIGGER service_area_au;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_au
+AFTER UPDATE ON service_area FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','UPDATE',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+update service_area set status = 'xxxxxxx' where id = 411;
+
+
+
+DROP TRIGGER service_area_ad;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_ad
+AFTER DELETE ON service_area FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('SITE','DELETE',CAST(OLD.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+delete from service_area where id = 411;
+
+
+===========================================================================
+Location (Table name: site)
+===========================================================================
+
+DROP TRIGGER site_ai;
+
+DELIMITER //
+
+CREATE TRIGGER site_ai
+AFTER INSERT ON site FOR EACH ROW
+BEGIN   
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','INSERT',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+INSERT INTO `site` (`version`, `finish_date`, `finish_user_id`, `install_worker_id`, `latitude`, `location_name`, `longitude`, `number_of_access_point`, `number_of_modem_router`, `number_of_switch`, `remark`, `service_area_id`, `start_date`, `start_user_id`, `status`, `update_date`, `update_user_id`, `delete_flag`) VALUES
+(9, '2014-10-24 08:10:55', NULL, 1, '100.00', 'ธ.กสิกรไทย สาขากระบี่ [9987]', '10.00', 10, 1, 1, 'xxx', 1, '2014-10-24 00:00:00', 1, 'test1', '2015-06-05 10:13:45', 13, b'0');
+
+
+select * from site where version = 9;
+
+select * from site where id in (select max(id) from site);
+
+select * from nmsnotify;
+
+
+DROP TRIGGER site_au;
+
+DELIMITER //
+
+CREATE TRIGGER site_au
+AFTER UPDATE ON site FOR EACH ROW
+BEGIN
+    IF (NEW.delete_flag = 1) THEN
+        INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','DELETE',CAST(NEW.id AS CHAR),'Queued');
+    ELSE
+        INSERT INTO nmsnotify (object,action,data,status) VALUES ('LOCATION','UPDATE',CAST(NEW.id AS CHAR),'Queued');
+    END IF;
+
+END; //
+
+DELIMITER ;
+
+
+update site set version = 9 where id = 405;
+
+update site set delete_flag = 1 where id = 405;
+
+
+
+===========================================================================
+Equipment (Table name: site_equipment)
+===========================================================================
+
+DROP TRIGGER site_equipment_ai;
+
+DELIMITER //
+
+CREATE TRIGGER site_equipment_ai
+AFTER INSERT ON site_equipment FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('EQUIPMENT','INSERT',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+select id from item where id not in (select item_id from service_area_equipment);
+
+
+INSERT INTO `service_area_equipment` (`version`, `item_id`, `service_area_id`) VALUES
+(1,398,404);
+
+select * from service_area_equipment where id in (select max(id) from service_area_equipment);
+
+
+INSERT INTO `site_equipment` (`version`, `host_name`, `ip`, `location`, 
+`service_area_equipment_id`, `site_circuit_id`, `status`, `latitude`, `longitude`, 
+`equipment_id`) VALUES
+(99, '001', '10.255.172.33', NULL, 
+409, 1038, NULL, '13.53', '99.81', 
+'RBR00404-A1179');
+
+
+
+DROP TRIGGER site_equipment_au;
+
+DELIMITER //
+
+CREATE TRIGGER site_equipment_au
+AFTER UPDATE ON site_equipment FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('EQUIPMENT','UPDATE',CAST(NEW.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+update site_equipment set status = 'xxxxxxx' where id = 411;
+
+
+
+DROP TRIGGER site_equipment_ad;
+
+DELIMITER //
+
+CREATE TRIGGER site_equipment_ad
+AFTER DELETE ON site_equipment FOR EACH ROW
+BEGIN
+    INSERT INTO nmsnotify (object,action,data,status) VALUES ('EQUIPMENT','DELETE',CAST(OLD.id AS CHAR),'Queued');
+END; //
+
+DELIMITER ;
+
+
+delete from site_equipment where id = 411;
+
+
+
+
+
+
+
+
+

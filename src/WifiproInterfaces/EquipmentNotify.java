@@ -71,7 +71,7 @@ public class EquipmentNotify extends HttpServlet {
 				JSONObject j = (JSONObject)obj;
 				returnResult = j.get("result").toString();
 //System.out.println("returnResult = " + returnResult + ", status = " + status);
-				if (returnResult.trim().toUpperCase().equals("OK")) {
+				if (returnResult.trim().toUpperCase().equals("success")) {
 					q.setSucceedById(id,result);
 				} else {
 					q.setResult(id, status, result);

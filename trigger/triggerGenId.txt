@@ -1,0 +1,111 @@
+===========================================================================
+SERVICE_AREA
+===========================================================================
+show index from service_area where column_name = 'area_code';
+
+ALTER TABLE service_area ADD UNIQUE KEY UK_rwqbc3gsnpxt56pmfpnvhn3qe (area_code);
+  
+alter table service_area drop index UK_rwqbc3gsnpxt56pmfpnvhn3qe;
+
+CREATE INDEX id_service_area_area_code ON service_area (area_code) USING BTREE;
+
+DROP TRIGGER service_area_bi;
+
+DELIMITER //
+
+CREATE TRIGGER service_area_bi
+BEFORE INSERT ON service_area FOR EACH ROW
+BEGIN
+    DECLARE iAreaCodeMAX INTEGER;
+    SELECT CAST(MAX(area_code) AS INT) FROM service_area where organization_id = NEW.organization_id INTO iAreaCodeMAX;
+    IF (iAreaCodeMAX IS NULL) THEN SET iAreaCodeMAX := 0; END IF;
+    SET NEW.area_code = LPAD(iAreaCodeMAX + 1,5,'0');
+END; //
+
+DELIMITER ;
+
+
+
+INSERT INTO `service_area` (`version`, `address`, `area_code`, `area_type_id`, `charge`, `comment`, `contact_name`, `contact_tel_number`, `create_date`, `create_user_id`, `customer_amount`, `latitude`, `longitude`, `name`, `organization_id`, `other_providers`, `post_address_id`, `project_id`, `remark`, `rival`, `signal_more`, `signal_old`, `status`, `update_date`, `update_user_id`, `worker_id`) VALUES
+(1, 
+'bbbbbbbbbbbb', 
+'00380', 19, NULL, NULL, NULL, NULL, '2014-10-24 00:00:00', 7, NULL, NULL, NULL, 
+'KBank Branch 2', 
+460, NULL, 7408, 1, NULL, NULL, NULL, NULL, 'approved', '2014-10-24 08:10:55', 7, NULL);
+
+select * from service_area where id in (select max(id) from service_area);
+
+select * from service_area where organization_id = 152;
+
+select * from service_area where organization_id = 460;
+
+
+===========================================================================
+SITE_EQUIPMENT
+===========================================================================
+
+DROP TRIGGER site_equipment_bi;
+
+DELIMITER //
+
+CREATE TRIGGER site_equipment_bi
+BEFORE INSERT ON site_equipment FOR EACH ROW
+BEGIN
+    DECLARE vAreaCode VARCHAR(10);
+    DECLARE vItemType VARCHAR(10);
+    DECLARE iEquipmentIdMAX INTEGER;
+    
+    SELECT CONCAT(o.code,sa.area_code) FROM organization o, service_area sa, site s, site_circuit sc 
+    WHERE o.id = sa.organization_id AND sa.id = s.service_area_id AND s.id = sc.site_id AND sc.id = NEW.site_circuit_id INTO vAreaCode;
+    
+    SELECT it.code FROM item_type it, item_model im, item i, service_area_equipment sae 
+    WHERE it.id = im.item_type_id AND im.id = i.model_id AND i.id = sae.item_id AND sae.id = NEW.service_area_equipment_id INTO vItemType;
+    
+    SELECT CAST(RIGHT(MAX(equipment_id),4) AS INT) FROM site_equipment WHERE equipment_id like CONCAT(vAreaCode,'-',vItemtype,'%') INTO iEquipmentIdMAX;
+
+    IF (iEquipmentIdMAX IS NULL) THEN SET iEquipmentIdMAX := 0; END IF;
+    
+    SET NEW.equipment_id = CONCAT(vAreaCode,'-',vItemtype,LPAD(iEquipmentIdMAX + 1,4,'0'));
+END; //
+
+DELIMITER ;
+
+
+----------------------------
+show index from site_equipment where column_name = 'service_area_equipment_id';
+
+ALTER TABLE site_equipment ADD UNIQUE KEY UK_a6jtd92g248v6ewt7oloq6ptp (service_area_equipment_id);
+  
+alter table site_equipment drop index UK_a6jtd92g248v6ewt7oloq6ptp;
+
+CREATE INDEX id_site_equipment_service_area_equipment_id ON site_equipment (service_area_equipment_id) USING BTREE;
+
+DROP INDEX id_site_equipment_service_area_equipment_id ON site_equipment
+----------------------------
+
+
+select id from item where id not in (select item_id from service_area_equipment);
+
+
+INSERT INTO `service_area_equipment` (`version`, `item_id`, `service_area_id`) VALUES
+(1,398,404);
+
+select * from service_area_equipment where id in (select max(id) from service_area_equipment);
+
+
+INSERT INTO `site_equipment` (`version`, `host_name`, `ip`, `location`, 
+`service_area_equipment_id`, `site_circuit_id`, `status`, `latitude`, `longitude`, 
+`equipment_id`) VALUES
+(99, '001', '10.255.172.33', NULL, 
+409, 1038, NULL, '13.53', '99.81', 
+'RBR00404-A1179');
+
+
+delete from site_equipment where version = 99;
+
+select * from site_equipment where id in (select max(id) from site_equipment);
+
+select * from site_equipment where version = 99;
+
+
+

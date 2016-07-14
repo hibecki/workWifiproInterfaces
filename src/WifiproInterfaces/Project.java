@@ -37,10 +37,10 @@ public class Project {
 			Class.forName(Utils.JdbcDriverName);
 			cntn = DriverManager.getConnection(Utils.JdbcConnectionstring);
 			stmt = cntn.createStatement();
-			rsst = stmt.executeQuery("select * from project where id = " + projectid);
+			rsst = stmt.executeQuery("select * from wifi_project where id = " + projectid);
 			if(rsst.next()){
 				this.id  = rsst.getLong("id");
-				this.name = rsst.getString("name");
+				this.name = rsst.getString("description");
 				isFound = true;
 			}
 			rsst.close();

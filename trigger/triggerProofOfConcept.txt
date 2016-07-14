@@ -1,0 +1,188 @@
+===========================================================================
+Validate solutions
+===========================================================================
+CREATE TABLE equiptype (
+  id int,
+  type varchar(1)
+);
+
+CREATE TABLE items (
+  id int,
+  equiptypeid int,
+  sitesid int,
+  equipmentid varchar(50)
+);
+
+insert into items values (1,1,1,'CMT00001_A0001');
+
+insert into items (id,equiptypeid,sitesid) values (2,1,1);
+
+insert into items (id,equiptypeid,sitesid) values (3,1,2);
+
+insert into items (id,equiptypeid,sitesid) values (4,2,3);
+
+
+
+DROP TRIGGER items_bi;
+
+DELIMITER //
+
+CREATE TRIGGER items_bi
+BEFORE INSERT ON items FOR EACH ROW
+BEGIN
+   DECLARE vSitecode varchar(10);
+   DECLARE vEquiptype varchar(5);
+
+   SELECT sitecode FROM sites where id = NEW.sitesid INTO vSitecode;
+   SELECT type FROM equiptype where id = NEW.equiptypeid INTO vEquiptype;
+   
+   SET NEW.equipmentid = CONCAT(vSitecode,'_',vEquiptype);
+   
+END; //
+
+DELIMITER ;
+
+
+
+===========================================================================
+SEQUENCELIST
+===========================================================================
+
+CREATE TABLE sequencelist (keytype VARCHAR(10), keyname VARCHAR(10), last_insert_id INT UNSIGNED);
+
+--SELECT 'PRV' keytype,code keyname, 0 last_insert_id FROM `organization` WHERE level = 4
+
+--INSERT INTO sequencelist VALUES
+('PRV', 'CCO', 0),
+('PRV', 'CTI', 0),
+('PRV', 'TRT', 0),
+('PRV', 'PRI', 0),
+('PRV', 'NYK', 0),
+('PRV', 'SKE', 0),
+('PRV', 'RYG', 0),
+('PRV', 'MTP', 0),
+('PRV', 'CBI', 0),
+('PRV', 'PTY', 0),
+('PRV', 'LBG', 0),
+('PRV', 'B12', 0),
+('PRV', 'B11', 0),
+('PRV', 'B22', 0),
+('PRV', 'B21', 0),
+('PRV', 'B32', 0),
+('PRV', 'B31', 0),
+('PRV', 'B41', 0),
+('PRV', 'B42', 0),
+('PRV', 'NMA', 0),
+('PRV', 'CPM', 0),
+('PRV', 'BRM', 0),
+('PRV', 'UBN', 0),
+('PRV', 'ACR', 0),
+('PRV', 'SSK', 0),
+('PRV', 'SRN', 0),
+('PRV', 'YST', 0),
+('PRV', 'KKN', 0),
+('PRV', 'MKM', 0),
+('PRV', 'RET', 0),
+('PRV', 'KSN', 0),
+('PRV', 'UDN', 0),
+('PRV', 'NLP', 0),
+('PRV', 'NKI', 0),
+('PRV', 'BUN', 0),
+('PRV', 'LEI', 0),
+('PRV', 'SNK', 0),
+('PRV', 'NPM', 0),
+('PRV', 'MDH', 0),
+('PRV', 'CMI', 0),
+('PRV', 'LPN', 0),
+('PRV', 'MSN', 0),
+('PRV', 'CRI', 0),
+('PRV', 'LPG', 0),
+('PRV', 'PYO', 0),
+('PRV', 'PRE', 0),
+('PRV', 'NAN', 0),
+('PRV', 'PLK', 0),
+('PRV', 'STI', 0),
+('PRV', 'UTT', 0),
+('PRV', 'KPT', 0),
+('PRV', 'TAK', 0),
+('PRV', 'NSN', 0),
+('PRV', 'PCT', 0),
+('PRV', 'PBN', 0),
+('PRV', 'UTI', 0),
+('PRV', 'CNT', 0),
+('PRV', 'SRI', 0),
+('PRV', 'LRI', 0),
+('PRV', 'SBR', 0),
+('PRV', 'AYA', 0),
+('PRV', 'ATG', 0),
+('PRV', 'SPB', 0),
+('PRV', 'NPT', 0),
+('PRV', 'SKN', 0),
+('PRV', 'SKM', 0),
+('PRV', 'KRI', 0),
+('PRV', 'PBI', 0),
+('PRV', 'RBR', 0),
+('PRV', 'PKN', 0),
+('PRV', 'SNI', 0),
+('PRV', 'CPN', 0),
+('PRV', 'RNG', 0),
+('PRV', 'PKT', 0),
+('PRV', 'PNA', 0),
+('PRV', 'NRT', 0),
+('PRV', 'KBI', 0),
+('PRV', 'TRG', 0),
+('PRV', 'SKA', 0),
+('PRV', 'STN', 0),
+('PRV', 'PLG', 0),
+('PRV', 'YLA', 0),
+('PRV', 'PTN', 0),
+('PRV', 'NWT', 0);
+
+
+DROP TRIGGER organization_ai;
+
+DELIMITER //
+
+CREATE TRIGGER organization_ai
+AFTER INSERT ON organization FOR EACH ROW
+BEGIN
+    IF (NEW.Level = 4) THEN
+        INSERT INTO sequencelist VALUES ('PRV', NEW.Code, 0);
+    END IF;
+END; //
+
+DELIMITER ;
+
+
+INSERT INTO organization(version, code, level, name, parent_id) VALUES (1,'AAA',4,'test',1);
+
+select * from organization where code = 'AAA';
+
+delete from organization where code = 'AAA';
+
+select * from sequencelist where keyname = 'AAA' and keytype = 'PRV';
+
+delete from sequencelist where keyname = 'AAA' and keytype = 'PRV';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

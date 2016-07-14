@@ -138,7 +138,7 @@ os.close();
             errorMessage = e.toString();
         } catch (IOException e) {
             errorCode = "Notifier04";
-            errorMessage = e.toString();
+            errorMessage = e.toString();result = "0";
         } finally {
             if(reader!=null){try{reader.close();}catch(Exception e){errorCode="Notifier96";errorMessage=e.toString();}reader=null;}
             if(output!=null){try{output.close();}catch(Exception e){errorCode="Notifier97";errorMessage=e.toString();}output=null;}
