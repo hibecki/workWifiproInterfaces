@@ -86,6 +86,9 @@ LOG.log(Level.INFO,"{0}-method: {1},url: {2}",new Object[]{"Notifier",method,url
                 result = reader.readLine();
             } else {
             	result = Integer.toString(urlcon.getResponseCode());
+            	//result = result + "-" + urlcon.getContent().toString();
+            	if (result.equals("200")) {result = "{`result`:`success`}".replace('`', '"');}
+            	else {result = "Response code: "+result;}
             }
 
             
@@ -138,7 +141,7 @@ os.close();
             errorMessage = e.toString();
         } catch (IOException e) {
             errorCode = "Notifier04";
-            errorMessage = e.toString();result = "0";
+            errorMessage = e.toString();result = errorMessage;
         } finally {
             if(reader!=null){try{reader.close();}catch(Exception e){errorCode="Notifier96";errorMessage=e.toString();}reader=null;}
             if(output!=null){try{output.close();}catch(Exception e){errorCode="Notifier97";errorMessage=e.toString();}output=null;}

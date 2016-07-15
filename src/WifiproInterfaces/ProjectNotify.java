@@ -71,7 +71,7 @@ public class ProjectNotify extends HttpServlet {
 				JSONObject j = (JSONObject)obj;
 				returnResult = j.get("result").toString();
 //System.out.println("returnResult = " + returnResult + ", status = " + status);
-				if (returnResult.trim().toUpperCase().equals("success")) {
+				if (returnResult.trim().toLowerCase().equals("success")) {
 					q.setSucceedById(id,result);
 				} else {
 					q.setResult(id, status, result);
