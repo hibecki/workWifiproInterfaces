@@ -1,0 +1,6 @@
+mysqldump -uwifipro -p totwifing > totwifing.sql
+
+mysql -uwifipro -p totwifing < totwifing.sql
+
+GRANT SUPER ON *.* TO wifipro@localhost (in case need to restore dump file)
+

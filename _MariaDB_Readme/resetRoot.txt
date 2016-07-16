@@ -1,0 +1,83 @@
+
+How To Reset A Forgotten Root Password For MariaDB On CentOS 7
+
+Posted by Richard W on 10 October 2014, 12:21 pm
+ 
+
+Lost your MariaDB root password? Well, you’re in luck because this brief tutorial is going to show you how get into the database server and create a new root password.
+
+When you forget the root password for MariaDB database server, you can’t just unlock or recover it, you must create a new and different one. To do this you need root privileges on the server you’re running MariaDB database server on. Then you need to use a backdoor trick that most people use to the reset forgotten root password for MySQL or MariaDB database server.
+
+So, if you’ve forgotten your password to sign on MariaDB server, continue below.
+
+This first thing you need to do is stop the database server. Obviously your site will be down, but this is the only way to access the backdoor of the server to reset the password. To stop or shutdown MariaDB on CentOS 7, run the commands below.
+
+sudo systemctl stop mariadb.service
+
+ 
+
+On Ubuntu run the commands below
+
+sudo service mariadb stop
+
+ 
+
+Next, you need to start MariaDB with unrestricted access so you wouldn’t need password to sign on as the root user. This starts the database server in an insecure manner keeping it wide open to anyone.
+
+
+
+Because the database is left wide open, you should safeguard against someone logging into the database remotely. This could happen, so add the –skip-networking option to the commands.
+
+sudo mysqld_safe --skip-grant-tables --skip-networking &
+
+ 
+
+Now that the database is started, you can now logon to it without passwords. Run the commands below to sign on to the database without prompting for password.
+
+mysql -u root
+
+ 
+
+Once you’re logged-on, change to the mysql database. This database comes with all MySQL and MariaDB servers. It’s store encrypted credentials and privileges for the root user.
+
+To change to the mysql database, run the commands below.
+
+use mysql;
+
+ 
+
+Next, run the commands below to change the root password
+
+update user set password=PASSWORD("new-password") where User='root';
+
+Remember to replace new-password with the root password and press Enter.
+
+Then run the commands below to flush or reset the privileges table.
+
+flush privileges;
+
+Exit.
+
+ 
+
+Now that the root password is changed, you should now be able to stop/start MariaDB server normally and and logon as the root user using the new password you created above.
+
+You can stop, then start the server using the commands below
+
+To stop the database, run the commands below.
+
+sudo systemctl stop mariadb.service
+
+To start, run the commands below
+
+sudo systemctl start mariadb.service
+
+ 
+
+Then logon as the root user with the new password using the commands below. W
+
+mysql -u root -p
+
+ 
+
+That’s it!  This is how you reset or re-created forgotten root password for MariaDB database server

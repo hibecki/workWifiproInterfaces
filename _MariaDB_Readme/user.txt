@@ -1,0 +1,82 @@
+﻿
+mysql -u root
+
+mysql>show grants;
+
+mysql>CREATE USER 'wifipro'@'localhost' IDENTIFIED BY 'wifipro1234';
+
+
+mysql>CREATE USER 'wifipro'@'%' IDENTIFIED BY 'wifipro1234';
+
+
+mysql>select Host,User from mysql.user;
+
+mysql>UPDATE mysql.user SET password=password('aaaa07')
+WHERE user='aaaa' AND host='localhost';
+
+mysql>UPDATE mysql.user SET password=password('root07')
+WHERE user='root' AND host='localhost';
+
+
+
+mysql>GRANT ALL ON totwifing.* TO 'wifipro'@'localhost';
+or
+mysql>use db1;
+mysql>GRANT ALL ON totwifing TO 'wifipro'@'localhost';
+
+GRANT SUPER ON *.* TO wifipro@localhost (in case need to restore dump file)
+
+mysql>drop user aaaa;
+
+mysql>quit
+
+mysql -u aaaa -p
+
+===============================================================================================================
+mysql>show databases;
+mysql>show tables;
+
+===============================================================================================================
+
+First thing to do is run this:
+SHOW GRANTS;
+
+You will quickly see you were assigned the anonymous user to authenticate into mysql.
+
+Instead of logging into mysql with
+mysql
+
+login like this:
+mysql -uroot
+
+By default, root@localhost has all rights and no password.
+
+If you cannot login as root without a password, do the following:
+
+Step 01) Add the two options in the mysqld section of my.ini:
+[mysqld]
+skip-grant-tables
+skip-networking
+
+Step 02) Restart mysql
+net stop mysql
+<wait 10 seconds>
+net start mysql
+
+Step 03) Connect to mysql
+mysql
+
+Step 04) Create a password from root@localhost
+UPDATE mysql.user SET password=password('whateverpasswordyoulike')
+WHERE user='root' AND host='localhost';
+exit
+
+Step 05) Restart mysql
+net stop mysql
+<wait 10 seconds>
+net start mysql
+
+Step 06) Login as root with password
+mysql -uroot -p
+
+You should be good from there.
